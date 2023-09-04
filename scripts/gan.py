@@ -116,8 +116,6 @@ class SimpleGAN:
             # Train the discriminator
             idx = np.random.randint(0, x_train.shape[0], batch_size)
             real_images = x_train[idx]
-            print(real_images.min())
-            print(real_images.max())
 
             noise = np.random.normal(-1, 1, (batch_size, self.latent_dim))
             fake_images = self.generator.predict(noise)
@@ -160,18 +158,18 @@ class SimpleGAN:
         real_labels = np.ones((x_test.shape[0], 1))
         fake_labels = np.zeros((x_test.shape[0], 1))
 
-        test_dataset = tf.data.Dataset.from_tensor_slices(x_test).batch(batch_size=128)
+        # Convert PyTorch tensor to NumPy array
+        x_test_numpy = x_test.numpy()
 
         # Evaluate discriminator on real images
-        real_accuracy = self.discriminator.evaluate(test_dataset, real_labels, verbose=0)
+        real_accuracy = self.discriminator.evaluate(x_test_numpy, real_labels, verbose=0)
 
         # Evaluate discriminator on generated images
-        generated_images = self.generate_images(num_images=test_dataset.shape[0])
+        generated_images = self.generate_images(num_images=x_test.shape[0])
         fake_accuracy = self.discriminator.evaluate(generated_images, fake_labels, verbose=0)
 
         print(f"Real Images - Loss: {real_accuracy[0]:.4f}, Accuracy: {100 * real_accuracy[1]:.2f}%")
         print(f"Generated Images - Loss: {fake_accuracy[0]:.4f}, Accuracy: {100 * fake_accuracy[1]:.2f}%")
-
 
     def plot_losses(self):
         plt.figure(figsize=(10, 5))
