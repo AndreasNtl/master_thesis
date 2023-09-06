@@ -26,8 +26,8 @@ class SimpleGAN:
         # Get the current timestamp
         self.timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-        self.generator_path = 'models/generator_model.keras'
-        self.discriminator_path = 'models/discriminator_model.keras'
+        self.generator_path = 'modelsv1/generator_model.keras'
+        self.discriminator_path = 'modelsv1/discriminator_model.keras'
 
 
         # Load models if they exist
@@ -103,7 +103,7 @@ class SimpleGAN:
         model.compile(loss='binary_crossentropy', optimizer=Adam(learning_rate=0.0002, beta_1=0.5))
         return model
 
-    def train(self, x_train, epochs=5000, batch_size=128):
+    def train(self, x_train, epochs=2000, batch_size=128):
 
         if self.models_loaded:  # Check if models are already loaded
             print("Models are already loaded. Training skipped.")
@@ -117,15 +117,16 @@ class SimpleGAN:
             idx = np.random.randint(0, x_train.shape[0], batch_size)
             real_images = x_train[idx]
 
-            noise = np.random.normal(-1, 1, (batch_size, self.latent_dim))
+            noise = np.random.normal(0, 1, (batch_size, self.latent_dim))
             fake_images = self.generator.predict(noise)
+
 
             d_loss_real = self.discriminator.train_on_batch(real_images, real)
             d_loss_fake = self.discriminator.train_on_batch(fake_images, fake)
             d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
 
             # Train the generator
-            noise = np.random.normal(-1, 1, (batch_size, self.latent_dim))
+            noise = np.random.normal(0, 1, (batch_size, self.latent_dim))
             g_loss = self.gan.train_on_batch(noise, real)
 
             # Store losses for visualization
@@ -137,7 +138,7 @@ class SimpleGAN:
                 print(f"{epoch}/{epochs} [D loss: {d_loss[0]:.4f}, acc.: {100 * d_loss[1]:.2f}%] "
                       f"[G loss: {g_loss:.4f}]")
 
-            if epoch % 1000 == 0:
+            if epoch % 100 == 0:
                 self.save_models()
 
         self.save_models()
@@ -153,6 +154,15 @@ class SimpleGAN:
 
         return self.generated_images
 
+    def display_images(images):
+        fig, axs = plt.subplots(4,4)
+        count = 0
+        for i in range(4):
+            for j in range(4):
+                axs[i, j].imshow((images[count] * 0.5) + 0.5)
+                axs[i, j].axis('off')
+                count += 1
+        plt.show()
 
     def evaluate_discriminator(self, x_test):
         real_labels = np.ones((x_test.shape[0], 1))
@@ -209,8 +219,8 @@ class SimpleGAN:
     def save_models(self):
         self.discriminator.save(self.discriminator_path)
         self.generator.save(self.generator_path)
-        np.save('models/d_losses.npy', self.d_losses)
-        np.save('models/g_losses.npy', self.g_losses)
+        np.save('modelsv1/d_losses.npy', self.d_losses)
+        np.save('modelsv1/g_losses.npy', self.g_losses)
         print("Models and loss histories saved.")
 
 
@@ -220,8 +230,8 @@ class SimpleGAN:
         self.gan = self.build_gan()  # Rebuild the GAN with the loaded models
 
         # Load loss histories
-        self.d_losses = np.load('models/d_losses.npy').tolist()
-        self.g_losses = np.load('models/g_losses.npy').tolist()
+        self.d_losses = np.load('modelsv1/d_losses.npy').tolist()
+        self.g_losses = np.load('modelsv1/g_losses.npy').tolist()
 
         print("Models loaded.")
 

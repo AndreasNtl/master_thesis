@@ -38,11 +38,11 @@ class Visualization:
 
         ax = self.df.label.value_counts().plot(kind='bar',
                                                figsize=(10, 6),
-                                               color=["red", "blue"],
+                                               color=["blue", "red"],  # Corrected color order
                                                edgecolor='white',
                                                alpha=0.8)
 
-        ax.set_xticklabels(["Positive", "Negative"], rotation=0, fontsize=12)
+        ax.set_xticklabels(["Negative", "Positive"], rotation=0, fontsize=12)
         ax.set_ylabel('Total Images', fontsize=12)
         ax.set_title("Distribution of Data by Label", fontsize=18, y=1.05)
 
@@ -58,7 +58,7 @@ class Visualization:
                 bbox=dict(boxstyle="round", fc="red", ec="black", alpha=0.7))
 
         # Add legend with labels specified
-        ax.legend(labels=["Positive", "Negative"], loc="upper right")
+        ax.legend(labels=["Negative", "Positive"], loc="upper right")
 
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)

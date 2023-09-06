@@ -10,7 +10,7 @@ from sklearn.metrics import confusion_matrix, classification_report
 
 
 class BrainCancerClassifier:
-    def __init__(self, epochs=1000):
+    def __init__(self, epochs=2000):
         self.epochs = epochs
         self.model = self.build_model()
         self.history = {}
@@ -41,7 +41,6 @@ class BrainCancerClassifier:
         val_images = np.array(val_images)
         val_labels = np.array(val_labels)
         
-        # Train the model using NumPy arrays
         self.history = self.model.fit(train_images, train_labels, epochs=self.epochs,
                                  validation_data=(val_images, val_labels),
                                  callbacks=[checkpoint])
