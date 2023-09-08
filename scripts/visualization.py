@@ -87,4 +87,20 @@ class Visualization:
             i_ += 1
 
         return plt.show()
+
+    def plot_labels(self, labels):
+
+        # Count the number of 0s and 1s
+        count_0 = np.sum(labels == 0)
+        count_1 = np.sum(labels == 1)
+
+        # Create a bar plot
+        categories = ['0', '1']
+        counts = [count_0, count_1]
+
+        plt.bar(categories, counts)
+        plt.xlabel('Labels')
+        plt.ylabel('Count')
+        plt.title('Distribution of Labels')
+        plt.show()
 # %%

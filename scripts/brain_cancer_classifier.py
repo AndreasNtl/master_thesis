@@ -5,15 +5,22 @@ from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropou
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader
 from scripts.brain_mri_dataset import BrainMriDataset
-from tensorflow.keras.callbacks import ModelCheckpoint
 from sklearn.metrics import confusion_matrix, classification_report
+import os
 
 
 class BrainCancerClassifier:
-    def __init__(self, epochs=2000):
+    def __init__(self, epochs=100, cl_type='fake_data_classifier'):
         self.epochs = epochs
         self.model = self.build_model()
         self.history = {}
+        self.cl_type = cl_type
+
+                # Load models if they exist
+        self.model_loaded = False  # Flag to track if models have been loaded
+        if os.path.exists(f"modelsv1/brain_cancer_{cl_type}.keras"):
+            self.load_model()
+            self.models_loaded = True  
 
 
     def build_model(self):
@@ -34,19 +41,16 @@ class BrainCancerClassifier:
         return model
     
     def train(self, train_images, train_labels, val_images, val_labels):
-        checkpoint = ModelCheckpoint('models/brain_cancer_classifier.keras', save_best_only=True)
-        
-        train_images = np.array(train_images)
-        train_labels = np.array(train_labels)
-        val_images = np.array(val_images)
-        val_labels = np.array(val_labels)
-        
+
+        if self.model_loaded:  # Check if models are already loaded
+            print("Models are already loaded. Training skipped.")
+            return
+
         self.history = self.model.fit(train_images, train_labels, epochs=self.epochs,
-                                 validation_data=(val_images, val_labels),
-                                 callbacks=[checkpoint])
+                                      validation_data=(val_images, val_labels) )
 
-        print("Model saved.")
-
+        self.save_model()
+ 
 
     def plot_training_history(self):
         plt.figure(figsize=(10, 5))
@@ -104,3 +108,13 @@ class BrainCancerClassifier:
         plt.ylabel('True label')
         plt.xlabel('Predicted label')
         plt.tight_layout()
+
+
+    def save_model(self):
+        self.model.save(f"modelsv1/brain_cancer_{self.cl_type}.keras")
+        print("Model saved.")
+
+
+    def load_model(self):
+        self.model = tf.keras.models.load_model(f"modelsv1/brain_cancer_{self.cl_type}.keras")
+        print("Model loaded.")
